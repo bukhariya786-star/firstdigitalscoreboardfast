@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bukhariya Fest - Pro Scoreboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@700;800&family=Poppins:wght@400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --gold: #ffcc00; --silver: #e2e8f0; --bronze: #cd7f32; --accent: #00d2ff;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            font-family: 'Poppins', sans-serif; color: white; overflow: hidden;
+            transition: background 1.5s ease;
+        }
+
+        /* മാറുന്ന ബാക്ക്ഗ്രൗണ്ട് സ്റ്റൈലുകൾ */
+        .bg-style-1 { background: radial-gradient(circle, #1e1b4b, #020617); }
+        .bg-style-2 { background: linear-gradient(135deg, #0f172a, #1e293b); }
+        .bg-style-3 { background: radial-gradient(circle at top right, #312e81, #020617); }
+
+        /* Header */
+        .header {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 10px; background: rgba(0,0,0,0.7); border-bottom: 3px solid var(--gold);
+            position: relative; z-index: 10;
+        }
+
+        #main-title {
+            font-family: 'Bebas Neue', sans-serif; font-size: 4rem; margin: 0;
+            background: linear-gradient(to right, #fff, var(--gold), #fff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            animation: textShine 3s infinite linear;
+        }
+
+        @keyframes textShine { 0% { background-position: 0% center; } 100% { background-position: 200% center; } }
+
+        .live-box {
+            background: #ff0000; color: white; padding: 2px 20px; border-radius: 50px;
+            font-weight: 900; font-size: 0.9rem; animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse { from { transform: scale(1); opacity: 1; } to { transform: scale(1.1); opacity: 0.8; } }
+
+        /* Slide Area - ലേഔട്ട് ശരിയാക്കിയത് */
+        #display-area { 
+            height: 45vh; display: flex; align-items: center; justify-content: center;
+            padding-top: 20px;
+        }
+
+        .slide {
+            width: 80%; max-width: 900px; background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(20px); border-radius: 30px; padding: 30px;
+            text-align: center; border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .trophy { font-size: 5rem; margin-bottom: 10px; display: block; }
+        .t-1 { color: var(--gold); animation: bounce 2s infinite; }
+        .t-2 { color: var(--silver); animation: swing 3s infinite ease-in-out; }
+        .t-3 { color: var(--bronze); animation: shake 0.5s infinite; }
+
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes swing { 0%, 100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+        @keyframes shake { from { transform: translateX(-3px); } to { transform: translateX(3px); } }
+
+        .p-name { font-size: 3.5rem; font-weight: 900; margin: 5px 0; color: #fff; }
+        .e-info { font-size: 1.4rem; color: var(--accent); font-weight: 700; text-transform: uppercase; }
+        .t-tag { 
+            font-family: 'Anek Malayalam', sans-serif; font-size: 1.5rem; 
+            background: rgba(0,0,0,0.4); padding: 5px 25px; border-radius: 50px; display: inline-block;
+        }
+
+        /* Team Footer Area */
+        .team-section {
+            display: flex; justify-content: space-around; width: 100%; 
+            position: absolute; bottom: 100px;
+        }
+
+        .team-card {
+            background: rgba(0,0,0,0.5); padding: 15px 40px; border-radius: 20px;
+            border: 2px solid var(--gold); text-align: center; min-width: 150px;
+            position: relative;
+        }
+
+        .team-label { font-family: 'Anek Malayalam', sans-serif; font-size: 1.6rem; margin-bottom: 5px; color: var(--gold); }
+        .team-score { font-size: 3rem; font-weight: 900; }
+
+        /* Agency Footer */
+        .agency-footer {
+            position: absolute; bottom: 0; width: 100%; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(90deg, #ff00cc, #3333ff, #ff00cc);
+            background-size: 400% 400%; animation: grad 8s infinite linear;
+            font-weight: 800; font-size: 1.2rem;
+        }
+        @keyframes grad { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+
+    </style>
+</head>
+<body class="bg-style-1" id="main-body">
+
+<div class="header">
+    <h1 id="main-title">BUKHARIYA ARTS FEST</h1>
+    <div class="live-box">LIVE UPDATING</div>
+</div>
+
+<div id="display-area">
+    </div>
+
+<div class="team-section">
+    <div class="team-card" id="card-team1">
+        <div class="team-label" id="t1-name">ടീം 1</div>
+        <div class="team-score" id="t1-val">0</div>
+    </div>
+    <div class="team-card" id="card-team2">
+        <div class="team-label" id="t2-name">ടീം 2</div>
+        <div class="team-score" id="t2-val">0</div>
+    </div>
+</div>
+
+<div class="agency-footer">
+    Powered by Jamal Digital Marketing Agency,Contact Now for More Details - 9995446354
+</div>
+
+<script>
+    const tsvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ56O5aSnw7A1i-9sD2blisxpJI3OHDoZjBhDNUehlwQMHmISN9gH5e4eBNBgnIm5FU4JvHEjgZUUb8/pub?gid=0&single=true&output=tsv';
+
+    let allResults = [];
+    let currentIndex = 0;
+    let bgIndex = 1;
+
+    async function fetchData() {
+        try {
+            const response = await fetch(tsvUrl);
+            const data = await response.text();
+            const rows = data.split('\n').slice(1);
+            
+            let t1_total = 0, t2_total = 0;
+            let names = [];
+            allResults = [];
+
+            rows.forEach(row => {
+                const col = row.split('\t');
+                if (col.length < 5) return;
+                const team = col[2].trim();
+                const score = parseInt(col[4]) || 0;
+                if (!names.includes(team)) names.push(team);
+                if (team === names[0]) t1_total += score;
+                else t2_total += score;
+
+                allResults.push({
+                    event: col[0], name: col[1], team: team,
+                    cat: col[3], score: col[4], rank: col[5]?.trim()
+                });
+            });
+
+            document.getElementById('t1-name').innerText = names[0] || "Team A";
+            document.getElementById('t2-name').innerText = names[1] || "Team B";
+            document.getElementById('t1-val').innerText = t1_total;
+            document.getElementById('t2-val').innerText = t2_total;
+
+            // വിജയിക്കുന്ന ടീമിന്റെ ബോക്സിൽ നിന്ന് തോരണങ്ങൾ
+            if (t1_total > t2_total) burst(0.2); // Left team
+            else if (t2_total > t1_total) burst(0.8); // Right team
+
+        } catch (e) { console.log(e); }
+    }
+
+    function burst(xPos) {
+        confetti({
+            particleCount: 5, angle: 90, spread: 50,
+            origin: { x: xPos, y: 0.8 }, colors: ['#ffcc00', '#00d2ff', '#fff']
+        });
+    }
+
+    function rotateSlide() {
+        if (allResults.length === 0) return;
+        const d = allResults[currentIndex];
+        const area = document.getElementById('display-area');
+
+        let trophy = d.rank === '1' ? '🏆' : (d.rank === '2' ? '🥈' : (d.rank === '3' ? '🥉' : '🏅'));
+        let tClass = d.rank === '1' ? 't-1' : (d.rank === '2' ? 't-2' : (d.rank === '3' ? 't-3' : ''));
+
+        area.innerHTML = `
+            <div class="slide">
+                <span class="trophy ${tClass}">${trophy}</span>
+                <div class="e-info">${d.event} | ${d.cat}</div>
+                <h2 class="p-name">${d.name}</h2>
+                <div class="t-tag">${d.team}</div>
+                <div style="margin-top:10px; font-size:1.8rem; font-weight:800; color:var(--gold);">
+                    RANK: ${d.rank} | POINTS: ${d.score}
+                </div>
+            </div>
+        `;
+
+        if (d.rank === '1') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        currentIndex = (currentIndex + 1) % allResults.length;
+    }
+
+    function changeBg() {
+        const body = document.getElementById('main-body');
+        body.className = 'bg-style-' + (bgIndex = bgIndex % 3 + 1);
+    }
+
+    fetchData();
+    setInterval(fetchData, 10000); 
+    setInterval(rotateSlide, 5000);
+    setInterval(changeBg, 5000);
+</script>
+
+</body>
+</html>
